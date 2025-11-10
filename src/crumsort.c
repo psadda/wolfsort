@@ -478,8 +478,13 @@ void FUNC(crumsort)(void *array, size_t nmemb, CMPFUNC *cmp)
 {
 	if (nmemb <= 256)
 	{
+#if !defined(_MSC_VER) || defined(__clang__)
+		// Use a variable-length array for the swap buffer if supported
 		VAR swap[nmemb];
-
+#else
+		// MSVC does not support variable-length arrays, so allocate the max nmemb
+		VAR swap[256];
+#endif
 		FUNC(quadsort_swap)(array, swap, nmemb, nmemb, cmp);
 
 		return;
@@ -495,9 +500,16 @@ void FUNC(crumsort)(void *array, size_t nmemb, CMPFUNC *cmp)
 		swap_size *= 4;
 	}
 #endif
+#if !defined(_MSC_VER) || defined(__clang__)
+	// Use a variable-length array for the swap buffer if supported
 	VAR swap[swap_size];
-
 	FUNC(crum_analyze)(pta, swap, swap_size, nmemb, cmp);
+#else
+	// MSVC does not support variable-length arrays, so allocate on the heap
+	VAR* swap = (VAR *)malloc(sizeof(VAR) * swap_size);
+	FUNC(crum_analyze)(pta, swap, swap_size, nmemb, cmp);
+	free(swap);
+#endif
 }
 
 void FUNC(crumsort_swap)(void *array, void *swap, size_t swap_size, size_t nmemb, CMPFUNC *cmp)

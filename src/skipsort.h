@@ -138,13 +138,15 @@ typedef int CMPFUNC (const void *a, const void *b);
 //└────────────────────────────────────────────────────┘//
 //////////////////////////////////////////////////////////
 
-#define VAR long double
-#define FUNC(NAME) NAME##128
+#if (DBL_MANT_DIG < LDBL_MANT_DIG)
+  #define VAR long double
+  #define FUNC(NAME) NAME##128
 
-#include "skipsort.c"
+  #include "skipsort.c"
 
-#undef VAR
-#undef FUNC
+  #undef VAR
+  #undef FUNC
+#endif
 
 ////////////////////////////////////////////////////////////////////////
 //┌──────────────────────────────────────────────────────────────────┐//
@@ -191,8 +193,10 @@ void skipsort(void *array, size_t nmemb, size_t size, CMPFUNC *cmp)
 		case sizeof(long long):
 			return skipsort64(array, nmemb, cmp);
 
+#if (DBL_MANT_DIG < LDBL_MANT_DIG)
 		case sizeof(long double):
 			return skipsort128(array, nmemb, cmp);
+#endif
 
 		default:
 			return assert(size == sizeof(char) || size == sizeof(short) || size == sizeof(int) || size == sizeof(long long) || size == sizeof(long double));

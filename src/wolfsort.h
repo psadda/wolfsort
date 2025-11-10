@@ -225,9 +225,11 @@ void wolfsort(void *array, size_t nmemb, size_t size, CMPFUNC *cmp)
 //			fluxsort64(array, nmemb, cmp); // fluxsort generally beats wolfsort for 64+ bit types
 			return;
 
+#if (DBL_MANT_DIG < LDBL_MANT_DIG)
 		case sizeof(long double):
 			fluxsort128(array, nmemb, cmp);
 			return;
+#endif
 
 //		case sizeof(struct256):
 //			wolfsort256(array, nmemb, cmp);

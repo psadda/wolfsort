@@ -488,9 +488,16 @@ void FUNC(blitsort)(void *array, size_t nmemb, CMPFUNC *cmp)
 			swap_size /= 4;
 		}
 #endif
+#if !defined(_MSC_VER) || defined(__clang__)
+		// Use a variable-length array for the swap buffer if supported
 		VAR swap[swap_size];
-
 		FUNC(blit_analyze)(pta, swap, swap_size, nmemb, cmp);
+#else
+		// MSVC does not support variable-length arrays, so allocate on the heap
+		VAR *swap = (VAR *)malloc(sizeof(VAR) * swap_size);
+		FUNC(blit_analyze)(pta, swap, swap_size, nmemb, cmp);
+		free(swap);
+#endif
 	}
 }
 

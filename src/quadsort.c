@@ -1068,7 +1068,13 @@ void FUNC(quadsort)(void *array, size_t nmemb, CMPFUNC *cmp)
 
 	if (nmemb < 32)
 	{
+#if !defined(_MSC_VER) || defined(__clang__)
+		// Use a variable-length array for the swap buffer if supported
 		VAR swap[nmemb];
+#else
+		// MSVC does not support variable-length arrays, so allocate the max nmemb
+		VAR swap[32];
+#endif
 
 		FUNC(tail_swap)(pta, swap, nmemb, cmp);
 	}

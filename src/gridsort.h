@@ -120,11 +120,13 @@ size_t  BSC_Z;
 #undef FUNC
 #undef STRUCT
 
-#define VAR long double
-#define FUNC(NAME) NAME##128
-#define STRUCT(NAME) struct NAME##128
+#if (DBL_MANT_DIG < LDBL_MANT_DIG)
+  #define VAR long double
+  #define FUNC(NAME) NAME##128
+  #define STRUCT(NAME) struct NAME##128
 
-#include "gridsort.c"
+  #include "gridsort.c"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //┌───────────────────────────────────────────────────────────────────────┐//
@@ -158,8 +160,10 @@ void gridsort(void *array, size_t nmemb, size_t size, CMPFUNC *cmp)
 		case sizeof(long long):
 			return gridsort64(array, nmemb, size, cmp);
 
+#if (DBL_MANT_DIG < LDBL_MANT_DIG)
 		case sizeof(long double):
 			return gridsort128(array, nmemb, size, cmp);
+#endif
 
 		default:
 			assert(size == sizeof(char) || size == sizeof(short) || size == sizeof(int) || size == sizeof(long long) || size == sizeof(long double));
